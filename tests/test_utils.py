@@ -16,7 +16,10 @@ from utils import (
     # Phone
     format_phone_number, is_valid_phone_number, validate_phone_number,
     # UF
-    is_valid_uf, validate_uf
+    is_valid_uf, validate_uf,
+    # Dados de Estágio
+    validate_dados_estagio, is_valid_date_range, is_valid_contract_duration,
+    is_valid_daily_hours, is_valid_weekly_hours
 )
 
 # --- Testes para CEP ---

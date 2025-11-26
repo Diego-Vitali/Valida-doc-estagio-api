@@ -32,3 +32,10 @@ from .uf import (
     validate_uf,
     UFS
 )
+from .estagio import (
+    validate_dados_estagio,
+    is_valid_date_range,
+    is_valid_contract_duration,
+    is_valid_daily_hours,
+    is_valid_weekly_hours
+)
