@@ -3,12 +3,12 @@ from typing import Optional
 from datetime import date, time, datetime, timedelta
 
 from utils import (
-    is_valid_cep,
-    is_valid_cpf,
-    is_valid_cnpj,
-    is_valid_email,
-    is_valid_phone_number,
-    is_valid_uf,
+    validate_cep,
+    validate_cpf,
+    validate_cnpj,
+    validate_email,
+    validate_phone_number,
+    validate_uf,
     ValidationError
 )
 
@@ -37,11 +37,11 @@ class EnderecoSchema(BaseModel):
 
     @field_validator('cep')
     def validar_cep(cls, v):
-        return validar_com_utils(is_valid_cep, v, 'cep')
+        return validar_com_utils(validate_cep, v, 'cep')
 
     @field_validator('estado')
     def validar_estado(cls, v):
-        return validar_com_utils(is_valid_uf, v, 'estado')
+        return validar_com_utils(validate_uf, v, 'estado')
 
 class RepresentanteSchema(BaseModel):
     nome: str = Field(..., max_length=100)
@@ -64,15 +64,15 @@ class UnidadeConcedenteSchema(BaseModel):
 
     @field_validator('cnpj')
     def validar_cnpj_campo(cls, v):
-        return validar_com_utils(is_valid_cnpj, v, 'cnpj')
+        return validar_com_utils(validate_cnpj, v, 'cnpj')
 
     @field_validator('cpf')
     def validar_cpf_campo(cls, v):
-        return validar_com_utils(is_valid_cpf, v, 'cpf')
+        return validar_com_utils(validate_cpf, v, 'cpf')
 
     @field_validator('telefone')
     def validar_telefone_campo(cls, v):
-        return validar_com_utils(is_valid_phone_number, v, 'telefone')
+        return validar_com_utils(validate_phone_number, v, 'telefone')
 
     @model_validator(mode='after')
     def verificar_documento_obrigatorio(self):
@@ -91,11 +91,11 @@ class SupervisorSchema(BaseModel):
 
     @field_validator('cpf')
     def validar_cpf_campo(cls, v):
-        return validar_com_utils(is_valid_cpf, v, 'cpf')
+        return validar_com_utils(validate_cpf, v, 'cpf')
 
     @field_validator('email')
     def validar_email_campo(cls, v):
-        return validar_com_utils(is_valid_email, v, 'email')
+        return validar_com_utils(validate_email, v, 'email')
 
 class EstagiarioSchema(BaseModel):
     nome: str = Field(..., max_length=100)
@@ -114,19 +114,19 @@ class EstagiarioSchema(BaseModel):
 
     @field_validator('cpf')
     def validar_cpf_campo(cls, v):
-        return validar_com_utils(is_valid_cpf, v, 'cpf')
+        return validar_com_utils(validate_cpf, v, 'cpf')
 
     @field_validator('email')
     def validar_email_campo(cls, v):
-        return validar_com_utils(is_valid_email, v, 'email')
+        return validar_com_utils(validate_email, v, 'email')
 
     @field_validator('telefone')
     def validar_telefone_campo(cls, v):
-        return validar_com_utils(is_valid_phone_number, v, 'telefone')
+        return validar_com_utils(validate_phone_number, v, 'telefone')
 
     @field_validator('celular')
     def validar_celular_campo(cls, v):
-        return validar_com_utils(is_valid_phone_number, v, 'celular')
+        return validar_com_utils(validate_phone_number, v, 'celular')
 
 class DadosEstagioSchema(BaseModel):
     data_inicio: date
