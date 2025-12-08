@@ -57,7 +57,6 @@ def validate_cpf_format(cpf: str) -> Dict[str, Any]:
     
     return {"validacao": True, "obs": "CPF Válido (formato)." }
 
-# Renomeando para clareza, mas mantendo a funcionalidade original
 async def validate_cpf_business(cpf: str) -> Dict[str, Any]:
     """
     Função de validação de CPF de alto nível (atualmente apenas valida o formato).
