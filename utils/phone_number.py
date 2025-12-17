@@ -6,6 +6,8 @@ def format_phone_number(phone_number: str) -> str:
     return re.sub(r'[^0-9]', '', clean_phone)
 
 def is_valid_phone_number(phone_number: str) -> bool:
+    phone_number = format_phone_number(phone_number)
+    
     if not phone_number.isdigit():
         return False
     
