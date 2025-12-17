@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional
 from datetime import date, time, datetime, timedelta
+import httpx
 
 from utils import (
     validate_cep,
@@ -64,7 +65,46 @@ class UnidadeConcedenteSchema(BaseModel):
 
     @field_validator('cnpj')
     def validar_cnpj_campo(cls, v):
-        return validar_com_utils(validate_cnpj, v, 'cnpj')
+        """
+        Valida o formato/dígito (Matemática) e a existência na Receita (API).
+        """
+        if not v:
+            return v
+
+        # 1. Validação Matemática (Utils - Rápida)
+        try:
+            validate_cnpj(v)
+        except ValidationError as e:
+            raise ValueError(str(e))
+
+        # 2. Validação Externa (BrasilAPI - Lenta)
+        cnpj_limpo = v.replace('.', '').replace('/', '').replace('-', '')
+        
+        try:
+            # Cliente síncrono pois validadores do Pydantic são síncronos
+            with httpx.Client(timeout=10.0) as client:
+                url = f"https://brasilapi.com.br/api/cnpj/v1/{cnpj_limpo}"
+                response = client.get(url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if 'type' in data and data['type'] == 'service_error':
+                        raise ValueError(f"CNPJ não encontrado na base da Receita Federal: {v}")
+                    
+                elif response.status_code == 404:
+                    raise ValueError(f"CNPJ não existe na Receita Federal: {v}")
+                
+                elif response.status_code == 400:
+                    raise ValueError("CNPJ inválido ou mal formatado na consulta externa.")
+                
+                else:
+                    # Em caso de erro 500 da API externa, barramos por segurança
+                    raise ValueError(f"Erro ao consultar BrasilAPI (Status {response.status_code}). Tente novamente.")
+
+        except httpx.RequestError:
+             raise ValueError("Erro de conexão: Não foi possível validar o CNPJ na Receita Federal.")
+
+        return v
 
     @field_validator('cpf')
     def validar_cpf_campo(cls, v):
@@ -160,8 +200,6 @@ class DadosEstagioSchema(BaseModel):
         horas_diarias = diferenca.total_seconds() / 3600
 
         # Não ultrapassar 6 horas diárias (padrão)
-        # Nota: Deixei fixo em 6h conforme Lei do Estágio padrão. 
-        # Para híbrido (8h), precisaríamos de um campo "tipo_curso" ou flag.
         if horas_diarias > 6:
             raise ValueError(f'A carga horária diária ({horas_diarias:.1f}h) excede o limite permitido de 6 horas.')
 
@@ -183,8 +221,6 @@ class ValidacaoDocumentoSchema(BaseModel):
     def validar_duracao_estagio(self):
         """
         Regra: Período máximo 2 anos (730 dias) exceto para PCD (Portador de Deficiência).
-        Esta validação precisa cruzar dados de 'estagiario' e 'dados_estagio',
-        por isso está no schema raiz.
         """
         inicio = self.dados_estagio.data_inicio
         termino = self.dados_estagio.data_termino
