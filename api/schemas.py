@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from typing import Optional
 from datetime import date, time, datetime, timedelta
 import httpx
@@ -216,6 +216,76 @@ class ValidacaoDocumentoSchema(BaseModel):
     supervisor: SupervisorSchema
     estagiario: EstagiarioSchema
     dados_estagio: DadosEstagioSchema
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "unidade_concedente": {
+                        "razao_social": "Empresa de Tecnologia Exemplar LTDA",
+                        "cnpj": "10.882.594/0009-12",
+                        "insc_estadual": "123.456.789.112",
+                        "cpf": None,
+                        "telefone": "11 923929245",
+                        "endereco": {
+                            "endereco": "Av. Paulista, 1000",
+                            "cep": "01310-100",
+                            "bairro": "Bela Vista",
+                            "cidade": "São Paulo",
+                            "estado": "SP"
+                        },
+                        "representante_legal": {
+                            "nome": "Roberto Carlos",
+                            "cargo": "Diretor Geral"
+                        }
+                    },
+                    "supervisor": {
+                        "nome": "Ana Maria Braga",
+                        "cpf": "877.549.876-60",
+                        "cargo": "Gerente de TI",
+                        "formacao_academica": "Ciência da Computação",
+                        "registro_profissional": {
+                            "numero": "123456",
+                            "orgao": "CREA-SP"
+                        },
+                        "email": "ana.supervisor@empresa.com"
+                    },
+                    "estagiario": {
+                        "nome": "Gabriel Silva",
+                        "curso": "Engenharia de Computação",
+                        "periodo": "Noturno",
+                        "prontuario": "BP3001234",
+                        "rg": "12.345.678-9",
+                        "cpf": "978.114.445-93",
+                        "data_nascimento": "2002-05-15",
+                        "endereco": {
+                            "endereco": "Rua dos Estudantes, 500",
+                            "cep": "07190-100",
+                            "bairro": "Centro",
+                            "cidade": "Guarulhos",
+                            "estado": "SP"
+                        },
+                        "telefone": "11 83748283",
+                        "celular": "11 987689371",
+                        "email": "gabriel.estagiario@aluno.ifsp.edu.br",
+                        "estagio_obrigatorio": True,
+                        "portador_de_deficiencia": False
+                    },
+                    "dados_estagio": {
+                        "data_inicio": "2025-02-01",
+                        "data_termino": "2026-01-31",
+                        "horario_inicio": "09:00",
+                        "horario_termino": "15:00",
+                        "horas_semanais": 30,
+                        "nome_seguradora": "Porto Seguro",
+                        "numero_apolice_seguro": "1234.5678.9012",
+                        "valor_seguro": 50000.00,
+                        "valor_bolsa_auxilio": 1500.00
+                    }
+                }
+            ]
+        }
+    )
 
     @model_validator(mode='after')
     def validar_duracao_estagio(self):
